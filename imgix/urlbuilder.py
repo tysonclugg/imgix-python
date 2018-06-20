@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import warnings
 import zlib
 
 from .urlhelper import UrlHelper
@@ -63,7 +64,7 @@ class UrlBuilder(object):
         self._shard_next_index = 0
         self._sign_with_library_version = sign_with_library_version
 
-    def create_url(self, path, opts={}):
+    def create_url(self, path, params={}, opts={}):
         """
         Create URL with supplied path and `opts` parameters dict.
 
@@ -81,6 +82,10 @@ class UrlBuilder(object):
         str
             imgix URL
         """
+        if opts:
+            warnings.warn('`opts` has been deprecated. Use `params` instead.',
+                          DeprecationWarning, stacklevel=2)
+        params = params or opts
         if self._shard_strategy == SHARD_STRATEGY_CRC:
             crc = zlib.crc32(path.encode('utf-8')) & 0xffffffff
             index = crc % len(self._domains)  # Deterministically choose domain
@@ -103,6 +108,6 @@ class UrlBuilder(object):
             sign_key=self._sign_key,
             sign_mode=self._sign_mode,
             sign_with_library_version=self._sign_with_library_version,
-            opts=opts)
+            params=params)
 
         return str(url_obj)

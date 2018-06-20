@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import hashlib
+import warnings
 from base64 import urlsafe_b64encode
 
 from .constants import SIGNATURE_MODE_QUERY
@@ -59,8 +60,13 @@ class UrlHelper(object):
             sign_key=None,
             sign_mode=SIGNATURE_MODE_QUERY,
             sign_with_library_version=True,
+            params={},
             opts={}):
+        if opts:
+            warnings.warn('`opts` has been deprecated. Use `params` instead.',
+                          DeprecationWarning, stacklevel=2)
 
+        params = params or opts
         self._scheme = scheme
         self._host = domain
         self._path = path
@@ -73,7 +79,7 @@ class UrlHelper(object):
         self._sign_mode = sign_mode
         self._parameters = {}
 
-        for key, value in iteritems(opts):
+        for key, value in iteritems(params):
             self.set_parameter(key, value)
 
     @classmethod
